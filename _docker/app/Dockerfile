@@ -13,9 +13,18 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
     vim \
     git && \
     npm install npm@latest -g && \
-    npm install yarn -g && \
-    docker-php-ext-install pdo_mysql bcmath gd zip intl && \
-    apt-get clean && \
+    npm install yarn -g
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql bcmath gd zip intl
+
+# Install Imagick dependencies and extension
+RUN apt-get install -y libmagickwand-dev --no-install-recommends && \
+    pecl install imagick && \
+    docker-php-ext-enable imagick
+
+# Clean up
+RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY ./_docker/app/php.ini /usr/local/etc/php/conf.d/php.ini
